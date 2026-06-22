@@ -1,5 +1,7 @@
 # CLAUDE.md – Bluesky Social App Development Guide
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 This document provides guidance for working effectively in the Bluesky Social app codebase.
 
 ## Project Overview
@@ -30,8 +32,18 @@ pnpm ios                # Run on iOS
 # Testing & Quality
 # IMPORTANT: Always use these pnpm scripts, never call the underlying tools directly
 pnpm test               # Run Jest tests
+pnpm test -- path/to/file.test.tsx           # Run a single test file
+pnpm test -- -t "matches a test name"        # Run tests whose name matches a pattern
+pnpm test-watch         # Jest in watch mode
 pnpm lint               # Run ESLint
-pnpm typecheck          # Run TypeScript type checking
+pnpm lint-native        # Lint Swift/Kotlin sources under modules/ (swiftlint + ktlint)
+pnpm typecheck          # Run TypeScript type checking (uses tsgo + tsconfig.check.json)
+
+# End-to-end (Maestro)
+pnpm e2e:mock-server    # Start the dev-env mock PDS (required for e2e)
+pnpm e2e:build          # Build the iOS e2e binary
+pnpm e2e:start          # Start Metro in e2e mode
+pnpm e2e:run            # Run the Maestro flows in __e2e__/
 
 # Internationalization
 # DO NOT run these commands - extraction and compilation are handled by CI
@@ -42,6 +54,27 @@ pnpm intl:compile       # Compile translations for runtime (nightly CI job)
 pnpm build-web          # Build web version
 pnpm prebuild           # Generate native projects
 ```
+
+## Repository Layout (top-level)
+
+The React Native app lives in `src/`, but the repo also contains several sibling
+workspaces. Most day-to-day work is in `src/`; touch the others only when the
+task specifically calls for it.
+
+- `src/` – the React Native / Expo app (iOS, Android, Web). This is the focus
+  of the rest of this document.
+- `modules/` – custom Expo native modules (Swift / Kotlin). Linted with
+  `pnpm lint-native`.
+- `bskyweb/` – Go web service that serves the built RN-Web bundle and renders
+  SSR metadata. Separate Go module; not built with pnpm.
+- `bskylink/` – link-shortening service.
+- `bskyogcard/` – Open Graph card image renderer.
+- `bskyembed/` – standalone embed widget (built via `pnpm build-embed`).
+- `dev-env/` – local mock atproto PDS used for e2e (`pnpm e2e:mock-server`).
+- `__e2e__/` – Maestro flows for end-to-end testing.
+- `__mocks__/` – Jest manual mocks.
+- `patches/` – `pnpm patch`es applied on install via `patch-package`.
+- `docs/build.md` – environment setup and platform build instructions.
 
 ## Project Structure
 
